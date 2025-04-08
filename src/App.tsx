@@ -1,14 +1,17 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
+import { LanguageProvider } from "./context/LanguageContext";
 
-function App() {
+const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/menu" element={<Menu />} />
-    </Routes>
+    <LanguageProvider>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/menu" element={<Menu />} />
+      </Routes>
+    </LanguageProvider>
   );
-}
+};
 
 export default App;
