@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Product } from "../data/menuData";
+import ProductModal from "./ProductModal";
 import { useTranslation } from "../hooks/useTranslation";
 
 interface Props {
@@ -8,6 +10,7 @@ interface Props {
 }
 
 const ProductCard = ({ product, onAdd, onToggle }: Props) => {
+  const [showModal, setShowModal] = useState(false);
   const { t, language } = useTranslation();
 
   return (
@@ -15,6 +18,7 @@ const ProductCard = ({ product, onAdd, onToggle }: Props) => {
       <div>
         <h3
           className="text-xl font-bold cursor-pointer hover:underline"
+          onClick={() => setShowModal(true)}
         >
           {product.name[language]}
         </h3>
@@ -40,6 +44,8 @@ const ProductCard = ({ product, onAdd, onToggle }: Props) => {
           {t("toggle")}
         </label>
       </div>
+
+      {showModal && <ProductModal product={product} onClose={() => setShowModal(false)} />}
     </div>
   );
 };

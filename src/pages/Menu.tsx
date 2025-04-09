@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { menuData, MenuCategory, Product } from "../data/menuData";
 import ProductCard from "../components/ProductCard";
-import CategoryFilter from '../components/CategoryFilter';
+import CategoryFilter from "../components/CategoryFilter";
 import CartSummary from "../components/CartSummary";
 import { useTranslation } from "../hooks/useTranslation";
 
@@ -9,6 +9,8 @@ const Menu = () => {
   const { t, language } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [cart, setCart] = useState<Record<string, number>>({});
+  const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
   const [menu, setMenu] = useState<MenuCategory[]>(menuData);
 
   useEffect(() => {
@@ -38,9 +40,24 @@ const Menu = () => {
     );
   };
 
-  const filteredMenu = menu.filter(cat => selectedCategory === t("all") || selectedCategory === cat.category[language]);
+  const filteredMenu = menu
+    .filter(cat => selectedCategory === t("all") || selectedCategory === cat.category[language])
+    .map(cat => {
+      const filteredProducts = cat.products
+        .filter(prod => prod.name[language].toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) => {
+          if (!sortOrder) return 0;
+          return sortOrder === "asc" ? a.price - b.price : b.price - a.price;
+        });
 
-  const allCategories = [t('all'), ...menu.map(c => c.category[language])];
+      return {
+        ...cat,
+        products: filteredProducts,
+      };
+    })
+    .filter(cat => cat.products.length > 0);
+
+  const allCategories = [t("all"), ...menu.map(c => c.category[language])];
 
   return (
     <div className="p-4 max-w-5xl mx-auto">
@@ -51,6 +68,21 @@ const Menu = () => {
           selected={selectedCategory}
           onSelect={setSelectedCategory}
         />
+        <input
+          type="text"
+          placeholder={t("search")}
+          className="border p-2 rounded w-full md:w-64"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        <select
+          className="border p-2 rounded"
+          onChange={e => setSortOrder(e.target.value as "asc" | "desc" | null)}
+        >
+          <option value="">{t("sortBy")}</option>
+          <option value="asc">{t("lowHigh")}</option>
+          <option value="desc">{t("highLow")}</option>
+        </select>
       </div>
 
       {filteredMenu.map(cat => (
